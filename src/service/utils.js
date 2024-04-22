@@ -1,5 +1,5 @@
 const isLetter = (letter) => {
-  return letter.match(/[a-z]/i);
+  return letter.length === 1 && letter.match(/[a-z]/i);
 };
 
 export const utils = {
