@@ -6,18 +6,21 @@ import BackspaceIcon from '@mui/icons-material/Backspace';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { utils } from '../service/utils';
 
-const KeyBoard = () => {
+const KeyBoard = ({ onSubmit, onDelete, onKeyDown }) => {
   useEffect(() => {
     const keyListener = (e) => {
-      const keyPress = e.key;
+      const keyPress = e.key.toUpperCase();
 
-      if (keyPress === 'Enter') {
+      if (keyPress === 'ENTER') {
+        onSubmit();
       }
 
-      if (keyPress === 'Backspace') {
+      if (keyPress === 'BACKSPACE') {
+        onDelete();
       }
 
       if (utils.isLetter(keyPress)) {
+        onKeyDown(keyPress);
       }
     };
 
@@ -40,16 +43,22 @@ const KeyBoard = () => {
           }}
         >
           {row.map((letter, index) => (
-            <Square key={index} value={letter} />
+            <Square
+              key={index}
+              value={letter}
+              onClick={() => onKeyDown(letter)}
+            />
           ))}
           {index === data.keyBoard.length - 1 && (
             <>
               <Square
+                onClick={onDelete}
                 value={
                   <BackspaceIcon sx={{ fontSize: '20px', display: 'flex' }} />
                 }
               />
               <Square
+                onClick={onSubmit}
                 value={
                   <CheckBoxIcon sx={{ fontSize: '20px', display: 'flex' }} />
                 }

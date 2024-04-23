@@ -1,11 +1,12 @@
 import { Box, Typography, useTheme } from '@mui/material';
 import React from 'react';
 
-const Square = ({ value }) => {
+const Square = ({ value, onClick }) => {
   const theme = useTheme();
 
   return (
     <Box
+      onClick={onClick}
       sx={{
         border: `3px solid ${theme.palette.primary.main}`,
         borderRadius: '5px',
