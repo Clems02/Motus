@@ -29,7 +29,7 @@ const KeyBoard = ({ onSubmit, onDelete, onKeyDown }) => {
     return () => {
       document.removeEventListener('keydown', keyListener);
     };
-  }, []);
+  }, [onKeyDown]);
 
   return (
     <Box>
