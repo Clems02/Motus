@@ -7,11 +7,75 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { utils } from '../service/utils';
 
 const KeyBoard = ({ onSubmit, onDelete, onKeyDown, tryWords, gameStatus }) => {
-  const [test, setTest] = useState([
-    { value: 'G', status: 'INCORRECT' },
-    { value: 'T', status: 'BON' },
-    { value: 'V', status: 'ABSENT' },
-  ]);
+  const [keyList, setKeyList] = useState([]);
+
+  useEffect(() => {
+    const newkeyList = [];
+    for (let x = 0; x < data.keyBoard.length; x++) {
+      const array = [];
+      for (let y = 0; y < data.keyBoard[x].length; y++) {
+        array.push({ value: data.keyBoard[x][y], status: 'UNKNOWN' });
+      }
+      newkeyList.push(array);
+    }
+    setTimeout(() => {
+      setKeyList(newkeyList);
+    }, 1500);
+  }, [gameStatus]);
+
+  useEffect(() => {
+    if (keyList != 0) {
+      const newArray = tryWords
+        .reduce((acc, value) => {
+          return acc.concat(value);
+        }, [])
+        .filter(({ value }) => value != '');
+
+      //console.log('array:', newArray);
+
+      const filteredArray = newArray.reduce((acc, letter) => {
+        const letterValue = letter.value;
+        const letterStatus = letter.status;
+
+        //N'existe pas encore, donc push dans tableau
+        if (!acc.some((letter) => letter.value === letterValue)) {
+          acc.push(letter);
+          return acc;
+        }
+
+        //Existe déja dans tableau, donc need vérif status
+        if (acc.some((letter) => letter.value === letterValue)) {
+          if (letterStatus === 'BON') {
+            const index = acc.findIndex(
+              (letter) => letter.value === letterValue
+            );
+            acc.splice(index, 1);
+            acc.push(letter);
+            return acc;
+          }
+        }
+
+        return acc;
+      }, []);
+
+      const newkeyList = [...keyList];
+      for (let x = 0; x < filteredArray.length; x++) {
+        const value = filteredArray[x].value;
+
+        for (let y = 0; y < newkeyList.length; y++) {
+          const row = newkeyList[y];
+          for (let z = 0; z < row.length; z++) {
+            const letter = row[z].value;
+
+            if (letter === value) {
+              row[z].status = filteredArray[x].status;
+            }
+          }
+        }
+      }
+      setKeyList(newkeyList);
+    }
+  }, [tryWords]);
 
   useEffect(() => {
     const keyListener = (e) => {
@@ -43,29 +107,9 @@ const KeyBoard = ({ onSubmit, onDelete, onKeyDown, tryWords, gameStatus }) => {
     if (gameStatus === 'PLAYING') onKeyDown(letter);
   };
 
-  const handleTest = () => {
-    console.log(tryWords[0]);
-    const bool = test.keys('A');
-    console.log(bool);
-  };
-
-  const generateVariant = (letter) => {
-    // if (tryWords.length === 0) return;
-    // //const bool = test.some((item) => item.value === letter) && 'BON';
-    // const newArray = tryWords
-    //   .reduce((acc, value) => {
-    //     return acc.concat(value);
-    //   })
-    //   .filter(({ value }) => value != '');
-    // const uniqueObject = newArray.reduce((acc, value) => {
-    //   const existObject = acc.find((item) => console.log(item));
-    // });
-    // console.log(newArray);
-  };
-
   return (
     <Box>
-      {data.keyBoard.map((row, index) => (
+      {keyList.map((row, index) => (
         <Container
           key={index}
           sx={{
@@ -74,12 +118,12 @@ const KeyBoard = ({ onSubmit, onDelete, onKeyDown, tryWords, gameStatus }) => {
             alignItems: 'center',
           }}
         >
-          {row.map((letter, index) => (
+          {row.map(({ value, status }, index) => (
             <Square
               key={index}
-              value={letter}
-              variant={generateVariant()}
-              onClick={() => handleKeyClick(letter)}
+              value={value}
+              variant={status}
+              onClick={() => handleKeyClick(value)}
             />
           ))}
           {index === data.keyBoard.length - 1 && (
