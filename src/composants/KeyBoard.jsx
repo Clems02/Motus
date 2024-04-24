@@ -1,37 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { data } from '../service/data';
-import { Box, Button, Container } from '@mui/material';
+import { Box, Button, Container, Paper } from '@mui/material';
 import Square from './Square';
 import BackspaceIcon from '@mui/icons-material/Backspace';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { utils } from '../service/utils';
+import { Keyboard } from '@mui/icons-material';
+import { useTheme } from '@emotion/react';
 
-const KeyBoard = ({ onSubmit, onDelete, onKeyDown, tryWords, gameStatus }) => {
+const KeyBoard = ({
+  onSubmit,
+  onDelete,
+  onKeyDown,
+  tryWords,
+  gameStatus,
+  keyBoard,
+}) => {
   const [keyList, setKeyList] = useState([]);
+  const theme = useTheme();
 
   useEffect(() => {
-    const newkeyList = [];
-    for (let x = 0; x < data.keyBoard.length; x++) {
-      const array = [];
-      for (let y = 0; y < data.keyBoard[x].length; y++) {
-        array.push({ value: data.keyBoard[x][y], status: 'UNKNOWN' });
-      }
-      newkeyList.push(array);
-    }
-    setTimeout(() => {
-      setKeyList(newkeyList);
-    }, 1500);
-  }, [gameStatus]);
-
-  useEffect(() => {
-    if (keyList != 0) {
+    if (keyBoard != 0) {
       const newArray = tryWords
         .reduce((acc, value) => {
           return acc.concat(value);
         }, [])
         .filter(({ value }) => value != '');
-
-      //console.log('array:', newArray);
 
       const filteredArray = newArray.reduce((acc, letter) => {
         const letterValue = letter.value;
@@ -58,7 +52,8 @@ const KeyBoard = ({ onSubmit, onDelete, onKeyDown, tryWords, gameStatus }) => {
         return acc;
       }, []);
 
-      const newkeyList = [...keyList];
+      //Modification du status des lettres du clavier si lettre dans filteredArray
+      const newkeyList = [...keyBoard];
       for (let x = 0; x < filteredArray.length; x++) {
         const value = filteredArray[x].value;
 
@@ -108,9 +103,19 @@ const KeyBoard = ({ onSubmit, onDelete, onKeyDown, tryWords, gameStatus }) => {
   };
 
   return (
-    <Box>
+    <Paper
+      elevation={10}
+      sx={{
+        padding: '20px',
+        maxWidth: '580px',
+        width: '100%',
+        margin: 'auto',
+        borderRadius: '30px',
+        border: `6px solid ${theme.palette.primary.main}`,
+      }}
+    >
       {keyList.map((row, index) => (
-        <Container
+        <Box
           key={index}
           sx={{
             display: 'flex',
@@ -142,9 +147,9 @@ const KeyBoard = ({ onSubmit, onDelete, onKeyDown, tryWords, gameStatus }) => {
               />
             </>
           )}
-        </Container>
+        </Box>
       ))}
-    </Box>
+    </Paper>
   );
 };
 

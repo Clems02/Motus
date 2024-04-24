@@ -1,12 +1,15 @@
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Paper, Typography } from '@mui/material';
 import KeyBoard from '../composants/KeyBoard';
 import TryBoard from '../composants/TryBoard';
 import React, { useEffect, useState } from 'react';
 import { utils } from '../service/utils';
 import DialogResult from '../composants/DialogResult';
 import DialogParams from '../composants/DialogParams';
+import { data } from '../service/data';
+import { useTheme } from '@emotion/react';
 
 const Wordle = () => {
+  const theme = useTheme();
   const [gameStatus, setGameStatus] = useState('');
   const [openParams, setOpenParams] = useState(false);
 
@@ -16,7 +19,7 @@ const Wordle = () => {
   const [currentRow, setCurrentRow] = useState(0);
   const [targetWord, setTargetWord] = useState('');
   const [tryWords, setTryWords] = useState([]);
-  //const [keyBestStatus, setKeyBestStatus] = useState([]); //Utilisé pour afficher les couleurs sur le clavier
+  const [keyBoard, setKeyBoard] = useState([]);
 
   /**
    * => Valeur pour variant square <=
@@ -47,6 +50,16 @@ const Wordle = () => {
         )
       )
     );
+
+    const keyBoardRow = [];
+    for (let x = 0; x < data.keyBoard.length; x++) {
+      const array = [];
+      for (let y = 0; y < data.keyBoard[x].length; y++) {
+        array.push({ value: data.keyBoard[x][y], status: 'UNKNOWN' });
+      }
+      keyBoardRow.push(array);
+    }
+    setKeyBoard(keyBoardRow);
 
     setCurrentRow(0);
     setGameStatus('PLAYING');
@@ -81,13 +94,17 @@ const Wordle = () => {
 
     const win = word.every(({ status }) => status === 'BON');
     if (win) {
-      setGameStatus('WIN');
-      return;
+      setTimeout(() => {
+        setGameStatus('WIN');
+        return;
+      }, 2000);
     }
 
     if (currentRow === rows - 1) {
-      setGameStatus('LOSED');
-      return;
+      setTimeout(() => {
+        setGameStatus('LOSED');
+        return;
+      }, 2000);
     }
 
     setCurrentRow(currentRow + 1);
@@ -126,10 +143,35 @@ const Wordle = () => {
   };
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'center', paddingY: 4 }}>
-        <Typography variant='h5'>Wordle - Clemsouille</Typography>
-      </Box>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+      }}
+    >
+      <Paper
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          paddingY: 4,
+          maxWidth: '600px',
+          width: '100%',
+          margin: '10px auto',
+          textAlign: 'center',
+          borderRadius: '30px',
+          border: '5px solid black',
+          border: `6px solid ${theme.palette.primary.main}`,
+        }}
+      >
+        <Typography
+          variant='h5'
+          sx={{ textDecoration: 'underline 5px' }}
+          flexWrap={'wrap'}
+        >
+          Wordle Clemsouille
+        </Typography>
+      </Paper>
       <TryBoard tryWords={tryWords} currentRow={currentRow} />
       <KeyBoard
         gameStatus={gameStatus}
@@ -137,6 +179,7 @@ const Wordle = () => {
         onDelete={handleDelete}
         onKeyDown={handleKeyDown}
         tryWords={tryWords}
+        keyBoard={keyBoard}
       />
       <DialogResult
         gameStatus={gameStatus}
@@ -151,8 +194,18 @@ const Wordle = () => {
         setWordLengthOK={setWordLengthOK}
         wordLengthOK={wordLengthOK}
       />
-      <Box
-        sx={{ display: 'flex', justifyContent: 'center', margin: 3, gap: 2 }}
+      <Paper
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          margin: '10px auto',
+          maxWidth: '400px',
+          width: '100%',
+          padding: '20px',
+          borderRadius: '30px',
+          border: `6px solid ${theme.palette.primary.main}`,
+          gap: 2,
+        }}
       >
         <Button
           variant='contained'
@@ -168,7 +221,7 @@ const Wordle = () => {
         >
           Paramètres
         </Button>
-      </Box>
+      </Paper>
     </Box>
   );
 };
