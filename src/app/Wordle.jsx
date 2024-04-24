@@ -1,30 +1,43 @@
-import { Box, Button } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import KeyBoard from '../composants/KeyBoard';
 import TryBoard from '../composants/TryBoard';
 import React, { useEffect, useState } from 'react';
 import { utils } from '../service/utils';
+import DialogResult from '../composants/DialogResult';
+import DialogParams from '../composants/DialogParams';
 
 const Wordle = () => {
+  const [gameStatus, setGameStatus] = useState('');
+  const [openParams, setOpenParams] = useState(false);
+
   const [rows, setRows] = useState(6);
+  const [wordLengthOK, setWordLengthOK] = useState([5]); //Stock la longueur possible du mots tiré au hasard
+
   const [currentRow, setCurrentRow] = useState(0);
   const [targetWord, setTargetWord] = useState('');
   const [tryWords, setTryWords] = useState([]);
+  //const [keyBestStatus, setKeyBestStatus] = useState([]); //Utilisé pour afficher les couleurs sur le clavier
 
   /**
-   * UNKNOWN
-   * BON
-   * ABSENT
-   * INCORRECT
+   * => Valeur pour variant square <=
+   *        UNKNOWN
+   *        BON
+   *        ABSENT
+   *        INCORRECT
+   *
+   * => Valeur pour gameStatus <=
+   *        WIN
+   *        LOSED
+   *        PLAYING
    */
 
   useEffect(() => {
     loadNewGame();
-  }, []);
+  }, [rows, wordLengthOK]);
 
   const loadNewGame = () => {
-    console.log('nn');
     /**Gestion mot à trouver */
-    const word = utils.randomWord();
+    const word = utils.randomWord(wordLengthOK);
     setTargetWord(word.split(''));
 
     setTryWords(
@@ -36,6 +49,7 @@ const Wordle = () => {
     );
 
     setCurrentRow(0);
+    setGameStatus('PLAYING');
   };
 
   const handleSubmit = () => {
@@ -60,9 +74,21 @@ const Wordle = () => {
       }
     }
 
+    //Modification state pour les couleurs du board / lignes
     const newArray = [...tryWords];
     newArray[currentRow] = word;
     setTryWords(newArray);
+
+    const win = word.every(({ status }) => status === 'BON');
+    if (win) {
+      setGameStatus('WIN');
+      return;
+    }
+
+    if (currentRow === rows - 1) {
+      setGameStatus('LOSED');
+      return;
+    }
 
     setCurrentRow(currentRow + 1);
   };
@@ -101,19 +127,48 @@ const Wordle = () => {
 
   return (
     <Box>
-      <Button variant='contained' onClick={loadNewGame}>
-        Recommencer
-      </Button>
-      {/* <Box>Mot à trouver: {targetWord}</Box>
-      <Box>Longueur du mot: {targetWord.length}</Box>
-      <Box>Current Row: {currentRow}</Box> */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', paddingY: 4 }}>
+        <Typography variant='h5'>Wordle - Clemsouille</Typography>
+      </Box>
       <TryBoard tryWords={tryWords} currentRow={currentRow} />
-
       <KeyBoard
+        gameStatus={gameStatus}
         onSubmit={handleSubmit}
         onDelete={handleDelete}
         onKeyDown={handleKeyDown}
+        tryWords={tryWords}
       />
+      <DialogResult
+        gameStatus={gameStatus}
+        newGame={loadNewGame}
+        targetWord={targetWord}
+      />
+      <DialogParams
+        open={openParams}
+        setOpen={setOpenParams}
+        rows={rows}
+        setRows={setRows}
+        setWordLengthOK={setWordLengthOK}
+        wordLengthOK={wordLengthOK}
+      />
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', margin: 3, gap: 2 }}
+      >
+        <Button
+          variant='contained'
+          onClick={loadNewGame}
+          onKeyDown={(event) => event.preventDefault()}
+        >
+          Recommencer
+        </Button>
+        <Button
+          variant='contained'
+          onClick={() => setOpenParams(true)}
+          onKeyDown={(event) => event.preventDefault()}
+        >
+          Paramètres
+        </Button>
+      </Box>
     </Box>
   );
 };
