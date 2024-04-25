@@ -14,7 +14,8 @@ const DialogResult = ({ gameStatus, newGame, targetWord }) => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    setOpen(!open);
+    if (gameStatus === 'PLAYING') setOpen(false);
+    else setOpen(true);
   }, [gameStatus]);
 
   const handleClose = () => {

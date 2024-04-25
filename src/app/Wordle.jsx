@@ -96,15 +96,15 @@ const Wordle = () => {
     if (win) {
       setTimeout(() => {
         setGameStatus('WIN');
-        return;
       }, 2000);
     }
 
-    if (currentRow === rows - 1) {
-      setTimeout(() => {
-        setGameStatus('LOSED');
-        return;
-      }, 2000);
+    if (!win) {
+      if (currentRow === rows - 1) {
+        setTimeout(() => {
+          setGameStatus('LOSED');
+        }, 2000);
+      }
     }
 
     setCurrentRow(currentRow + 1);
@@ -150,6 +150,7 @@ const Wordle = () => {
         justifyContent: 'center',
       }}
     >
+      <Box sx={{ bgcolor: 'white' }}>{targetWord}</Box>
       <Paper
         sx={{
           display: 'flex',
@@ -160,7 +161,6 @@ const Wordle = () => {
           margin: '10px auto',
           textAlign: 'center',
           borderRadius: '30px',
-          border: '5px solid black',
           border: `6px solid ${theme.palette.primary.main}`,
         }}
       >
