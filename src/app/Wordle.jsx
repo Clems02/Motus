@@ -150,7 +150,6 @@ const Wordle = () => {
         justifyContent: 'center',
       }}
     >
-      <Box sx={{ bgcolor: 'white' }}>{targetWord}</Box>
       <Paper
         sx={{
           display: 'flex',
